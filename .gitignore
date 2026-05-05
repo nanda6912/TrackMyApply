@@ -1,0 +1,222 @@
+# ApplyTrack .gitignore - Comprehensive ignore file for job application tracking system
+
+# =============================================================================
+# DEPENDENCIES
+# =============================================================================
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# =============================================================================
+# BUILD OUTPUTS
+# =============================================================================
+# Maven/Java build outputs
+target/
+build/
+out/
+classes/
+*.class
+*.war
+*.jar
+*.ear
+*.iml
+
+# React build outputs
+build/
+dist/
+.next/
+.nuxt/
+.vuepress/dist/
+
+# =============================================================================
+# ENVIRONMENT & CONFIGURATION FILES
+# =============================================================================
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Configuration files with secrets
+application-*.properties
+application-*.yml
+client_secret.json
+credentials.json
+service-account.json
+
+# =============================================================================
+# OAUTH TOKENS & CREDENTIALS
+# =============================================================================
+# OAuth tokens and credentials
+tokens/
+*.token
+*.credentials
+*.json.bak
+StoredCredential
+
+# =============================================================================
+# DATABASE & DATA FILES
+# =============================================================================
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+*.h2.db
+
+# =============================================================================
+# LOGS
+# =============================================================================
+# Log files
+logs/
+*.log
+*.log.*
+log/
+application.log
+error.log
+access.log
+
+# =============================================================================
+# CACHE & TEMPORARY FILES
+# =============================================================================
+# Cache directories
+.cache/
+*.cache
+temp/
+tmp/
+*.tmp
+*.temp
+
+# Browser cache
+frontend/temp-app/
+
+# =============================================================================
+# IDE & EDITOR FILES
+# =============================================================================
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# =============================================================================
+# OPERATING SYSTEM FILES
+# =============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+*.lnk
+*.url
+
+# =============================================================================
+# TESTING
+# =============================================================================
+# Test coverage
+coverage/
+*.lcov
+.nyc_output/
+junit.xml
+
+# =============================================================================
+# BACKUP & ARCHIVE FILES
+# =============================================================================
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+
+# =============================================================================
+# SPECIFIC TO APPLYTRACK
+# =============================================================================
+# Chrome extension build artifacts
+chrome-extension/build/
+chrome-extension/dist/
+
+# Gmail API tokens and credentials
+gmail-tokens/
+oauth-tokens/
+
+# Email processing temp files
+email-temp/
+processed-emails/
+
+# =============================================================================
+# DEVELOPMENT TOOLS
+# =============================================================================
+# ESLint cache
+.eslintcache
+
+# Prettier cache
+.prettiercache
+
+# Stylelint cache
+.stylelintcache
+
+# =============================================================================
+# PRODUCTION DEPLOYMENT
+# =============================================================================
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Kubernetes
+k8s/secrets/
+*.kubeconfig
+
+# =============================================================================
+# SECURITY & SENSITIVE DATA
+# =============================================================================
+# Any file containing passwords, keys, or secrets
+*secret*
+*private*
+*password*
+*key*
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# =============================================================================
+# MISC
+# =============================================================================
+# Lock files (keep package-lock.json for consistency)
+# yarn.lock
+pnpm-lock.yaml
+
+# Generated documentation
+docs/generated/
+
+# Profiler data
+*.prof
+*.profile
+
+# Memory dumps
+*.hprof
+*.dump

@@ -4,10 +4,22 @@ import { toast } from 'react-hot-toast';
 import axios from 'axios';
 import { Briefcase, MapPin, Calendar, Link, FileText, Save, X } from 'lucide-react';
 
-const AddApplication = ({ onClose, onApplicationAdded }) => {
+const AddApplication = ({ onClose, onApplicationAdded, initialData, isEditMode = false }) => {
   const [loading, setLoading] = useState(false);
   
-  const { register, handleSubmit, formState: { errors }, reset } = useForm();
+  const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm();
+
+  // Prefill form with initial data when editing
+  React.useEffect(() => {
+    if (initialData) {
+      setValue('companyName', initialData.companyName || '');
+      setValue('role', initialData.role || '');
+      setValue('platform', initialData.platform || 'OTHER');
+      setValue('status', initialData.status || 'APPLIED');
+      setValue('jobLink', initialData.jobLink || '');
+      setValue('notes', initialData.notes || '');
+    }
+  }, [initialData, setValue]);
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -18,13 +30,22 @@ const AddApplication = ({ onClose, onApplicationAdded }) => {
         source: 'MANUAL'
       };
 
-      await axios.post('http://localhost:8082/api/applications', applicationData);
-      toast.success('Application added successfully!');
+      let response;
+      if (isEditMode && initialData?.id) {
+        // Update existing application
+        response = await axios.put(`http://localhost:8082/api/applications/${initialData.id}`, applicationData);
+        toast.success('Application updated successfully!');
+      } else {
+        // Create new application
+        response = await axios.post('http://localhost:8082/api/applications', applicationData);
+        toast.success('Application added successfully!');
+      }
+
       reset();
       onApplicationAdded();
       onClose();
     } catch (error) {
-      toast.error('Failed to add application');
+      toast.error(`Failed to ${isEditMode ? 'update' : 'add'} application`);
       console.error('Error:', error);
     } finally {
       setLoading(false);
@@ -35,7 +56,9 @@ const AddApplication = ({ onClose, onApplicationAdded }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-800">Add Application</h2>
+          <h2 className="text-xl font-bold text-gray-800">
+          {isEditMode ? 'Edit Application' : 'Add Application'}
+        </h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"

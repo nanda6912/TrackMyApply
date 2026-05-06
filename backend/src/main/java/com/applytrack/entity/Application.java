@@ -51,10 +51,18 @@ public class Application {
     @NotNull
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+    
+    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 
     // Constructors
@@ -107,6 +115,9 @@ public class Application {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
     public enum Platform {
         LINKEDIN, NAUKRI, INDEED, OTHER

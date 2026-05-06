@@ -43,4 +43,8 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     boolean existsByUserIdAndJobLink(Long userId, String jobLink);
     
     Optional<Application> findByUserIdAndJobLink(Long userId, String jobLink);
+    
+    List<Application> findByUserIdAndCompanyNameAndRoleOrderByAppliedDateDesc(Long userId, String companyName, String role);
+    
+    boolean existsByUserIdAndCompanyNameAndRoleAndAppliedDateAndSource(Long userId, String companyName, String role, LocalDateTime appliedDate, Application.ApplicationSource source);
 }

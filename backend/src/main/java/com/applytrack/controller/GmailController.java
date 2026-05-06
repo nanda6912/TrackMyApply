@@ -1,5 +1,6 @@
 package com.applytrack.controller;
 
+import com.applytrack.service.ApplicationService;
 import com.applytrack.service.GmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,30 +20,30 @@ public class GmailController {
     private static final Long CURRENT_USER_ID = 1L;
 
     @GetMapping("/auth/google")
-    public ResponseEntity<Map<String, String>> initiateGoogleAuth() {
+    public ResponseEntity<Map<String, Object>> initiateGoogleAuth() {
         try {
-            String authUrl = gmailService.getAuthorizationUrl();
-            return ResponseEntity.ok(Map.of("authUrl", authUrl));
+            Map<String, Object> response = gmailService.getAuthorizationUrl();
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", "Failed to initiate Google auth: " + e.getMessage()));
         }
     }
 
     @GetMapping("/auth/google/callback")
-    public ResponseEntity<Map<String, String>> handleGoogleCallback(@RequestParam String code) {
+    public ResponseEntity<Map<String, Object>> handleGoogleCallback(@RequestParam String code) {
         try {
-            gmailService.handleCallback(code);
-            return ResponseEntity.ok(Map.of("message", "Gmail authorization successful"));
+            Map<String, Object> response = gmailService.handleCallback(code);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", "Failed to handle Google callback: " + e.getMessage()));
         }
     }
 
     @PostMapping("/sync")
-    public ResponseEntity<Map<String, String>> syncEmails() {
+    public ResponseEntity<Map<String, Object>> syncEmails() {
         try {
-            gmailService.syncEmails(CURRENT_USER_ID);
-            return ResponseEntity.ok(Map.of("message", "Email sync completed successfully"));
+            Map<String, Object> response = gmailService.syncEmails(CURRENT_USER_ID);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", "Failed to sync emails: " + e.getMessage()));
         }

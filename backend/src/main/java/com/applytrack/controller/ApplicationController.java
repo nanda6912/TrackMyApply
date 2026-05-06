@@ -52,13 +52,14 @@ public class ApplicationController {
     @PostMapping
     public ResponseEntity<ApplicationResponse> createApplication(@Valid @RequestBody ApplicationRequest request) {
         try {
-            ApplicationResponse application = applicationService.createApplication(CURRENT_USER_ID, request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(application);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            ApplicationResponse response = applicationService.createApplication(CURRENT_USER_ID, request);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
         }
     }
 
+    
     @PostMapping("/extension")
     public ResponseEntity<ApplicationResponse> createApplicationFromExtension(@Valid @RequestBody ApplicationRequest request) {
         try {
@@ -72,7 +73,7 @@ public class ApplicationController {
     @PostMapping("/email")
     public ResponseEntity<ApplicationResponse> createApplicationFromEmail(@Valid @RequestBody ApplicationRequest request) {
         try {
-            ApplicationResponse application = applicationService.createApplicationFromEmail(CURRENT_USER_ID, request);
+            ApplicationResponse application = applicationService.createOrUpdateApplicationFromEmail(CURRENT_USER_ID, request);
             return ResponseEntity.status(HttpStatus.CREATED).body(application);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();

@@ -14,6 +14,9 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AddApplication from './AddApplication';
+import PipelineView from './PipelineView';
+import TimelineView from './TimelineView';
+import PlatformAnalytics from './PlatformAnalytics';
 
 const Dashboard = () => {
   const [applications, setApplications] = useState([]);
@@ -24,6 +27,10 @@ const Dashboard = () => {
   const [platformFilter, setPlatformFilter] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [syncingEmails, setSyncingEmails] = useState(false);
+  const [stats, setStats] = useState(null);
+  const [platformAnalytics, setPlatformAnalytics] = useState(null);
+  const [viewMode, setViewMode] = useState('cards'); // 'cards', 'pipeline', 'analytics'
+  const [editingApplication, setEditingApplication] = useState(null);
 
   const statusOptions = [
     { value: '', label: 'All Status' },
@@ -75,14 +82,57 @@ const Dashboard = () => {
       
       const data = await response.json();
       setApplications(data);
-      setFilteredApplications(data);
     } catch (error) {
-      toast.error('Failed to load applications');
-      console.error('Error fetching applications:', error);
+      toast.error('Failed to fetch applications');
+      console.error('Error:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch('http://localhost:8082/api/stats');
+      if (!response.ok) throw new Error('Failed to fetch stats');
+      
+      const data = await response.json();
+      setStats(data);
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
+  const fetchPlatformAnalytics = async () => {
+    try {
+      const response = await fetch('http://localhost:8082/api/stats/platform');
+      if (!response.ok) throw new Error('Failed to fetch platform analytics');
+      
+      const data = await response.json();
+      setPlatformAnalytics(data);
+    } catch (error) {
+      console.error('Error fetching platform analytics:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchApplications();
+    fetchStats();
+    fetchPlatformAnalytics();
+  }, []);
+
+  useEffect(() => {
+    fetchApplications();
+    fetchStats();
+    fetchPlatformAnalytics();
+  }, [statusFilter, platformFilter]);
+
+  useEffect(() => {
+    const filtered = applications.filter(app => 
+      app.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.role.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredApplications(filtered);
+  }, [applications, searchTerm]);
 
   const deleteApplication = async (id) => {
     if (!window.confirm('Are you sure you want to delete this application?')) return;
@@ -104,7 +154,13 @@ const Dashboard = () => {
 
   const handleApplicationAdded = () => {
     fetchApplications();
+    fetchStats();
+    fetchPlatformAnalytics();
     setShowAddModal(false);
+  };
+
+  const handleEditApplication = (application) => {
+    setEditingApplication(application);
   };
 
   const handleGmailSync = async () => {
@@ -183,6 +239,47 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Dashboard Stats Cards */}
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Applications</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.totalApplications}</p>
+                </div>
+                <div className="p-3 bg-blue-100 rounded-lg">
+                  <Briefcase className="h-6 w-6 text-blue-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Response Rate</p>
+                  <p className="text-2xl font-bold text-green-600">{stats.responseRate}%</p>
+                </div>
+                <div className="p-3 bg-green-100 rounded-lg">
+                  <Calendar className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Interview Rate</p>
+                  <p className="text-2xl font-bold text-purple-600">{stats.interviewRate}%</p>
+                </div>
+                <div className="p-3 bg-purple-100 rounded-lg">
+                  <Building className="h-6 w-6 text-purple-600" />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Filters */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center space-x-2 mb-4">
@@ -228,7 +325,85 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Applications List */}
+        {/* View Toggle */}
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Filter className="h-4 w-4 text-gray-500" />
+              <span className="text-sm font-medium text-gray-700">View Mode</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setViewMode('cards')}
+                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                  viewMode === 'cards' 
+                    ? 'bg-primary-600 text-white' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                Cards
+              </button>
+              <button
+                onClick={() => setViewMode('pipeline')}
+                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                  viewMode === 'pipeline' 
+                    ? 'bg-primary-600 text-white' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                Pipeline
+              </button>
+              <button
+                onClick={() => setViewMode('analytics')}
+                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                  viewMode === 'analytics' 
+                    ? 'bg-primary-600 text-white' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                Analytics
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Content based on view mode */}
+        {viewMode === 'pipeline' && (
+          <PipelineView 
+            applications={filteredApplications}
+            onEdit={(application) => {
+              // TODO: Implement edit functionality
+              console.log('Edit application:', application);
+            }}
+            onDelete={(id) => deleteApplication(id)}
+          />
+        )}
+
+        {viewMode === 'analytics' && (
+          <div className="space-y-6">
+            <PlatformAnalytics analytics={platformAnalytics} />
+            
+            {/* Platform distribution chart */}
+            {platformAnalytics && platformAnalytics.distribution && (
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Platform Distribution</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {Object.entries(platformAnalytics.distribution).map(([platform, count]) => (
+                    <div key={platform} className="text-center">
+                      <div className="text-2xl font-bold text-gray-900">{count}</div>
+                      <div className="text-sm text-gray-600">{platform}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Applications List - Default Cards View */}
+        {viewMode === 'cards' && (
+          <>
+            {/* Applications List */}
         {filteredApplications.length === 0 ? (
           <div className="bg-white p-12 rounded-lg shadow-sm border border-gray-200 text-center">
             <Briefcase className="h-16 w-16 text-gray-300 mx-auto mb-4" />
@@ -298,6 +473,7 @@ const Dashboard = () => {
                       </a>
                     )}
                     <button
+                      onClick={() => handleEditApplication(application)}
                       className="p-2 text-gray-500 hover:text-blue-600 transition-colors"
                       title="Edit Application"
                     >
@@ -322,6 +498,8 @@ const Dashboard = () => {
             ))}
           </div>
         )}
+          </>
+        )}
       </div>
       
       {/* Add Application Modal */}
@@ -329,6 +507,21 @@ const Dashboard = () => {
         <AddApplication
           onClose={() => setShowAddModal(false)}
           onApplicationAdded={handleApplicationAdded}
+        />
+      )}
+
+      {/* Edit Application Modal */}
+      {editingApplication && (
+        <AddApplication
+          initialData={editingApplication}
+          isEditMode={true}
+          onClose={() => setEditingApplication(null)}
+          onApplicationAdded={() => {
+            setEditingApplication(null);
+            fetchApplications();
+            fetchStats();
+            fetchPlatformAnalytics();
+          }}
         />
       )}
     </>

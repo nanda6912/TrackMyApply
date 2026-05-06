@@ -110,7 +110,7 @@ const Dashboard = () => {
   const handleGmailSync = async () => {
     try {
       setSyncingEmails(true);
-      const response = await fetch('http://localhost:8082/api/gmail/email/sync', {
+      const response = await fetch('http://localhost:8082/api/gmail/sync', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

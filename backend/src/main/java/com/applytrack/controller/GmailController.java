@@ -18,6 +18,26 @@ public class GmailController {
     // Temporary: Using hardcoded user ID. In production, this would come from JWT token
     private static final Long CURRENT_USER_ID = 1L;
 
+    @GetMapping("/auth/google")
+    public ResponseEntity<Map<String, String>> initiateGoogleAuth() {
+        try {
+            String authUrl = gmailService.getAuthorizationUrl();
+            return ResponseEntity.ok(Map.of("authUrl", authUrl));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Failed to initiate Google auth: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/auth/google/callback")
+    public ResponseEntity<Map<String, String>> handleGoogleCallback(@RequestParam String code) {
+        try {
+            gmailService.handleCallback(code);
+            return ResponseEntity.ok(Map.of("message", "Gmail authorization successful"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Failed to handle Google callback: " + e.getMessage()));
+        }
+    }
+
     @PostMapping("/sync")
     public ResponseEntity<Map<String, String>> syncEmails() {
         try {

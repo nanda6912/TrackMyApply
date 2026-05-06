@@ -55,9 +55,14 @@ public class GmailService {
     public void init() {
         try {
             final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-            gmailService = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredential(HTTP_TRANSPORT))
-                    .setApplicationName(APPLICATION_NAME)
-                    .build();
+            com.google.api.client.auth.oauth2.Credential credential = getCredential(HTTP_TRANSPORT);
+            if (credential != null) {
+                gmailService = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
+                        .setApplicationName(APPLICATION_NAME)
+                        .build();
+            } else {
+                System.out.println("Gmail service not initialized - no valid credentials found");
+            }
         } catch (Exception e) {
             System.err.println("Failed to initialize Gmail service: " + e.getMessage());
         }
@@ -92,6 +97,10 @@ public class GmailService {
     }
 
     public void syncEmails(Long userId) {
+        if (gmailService == null) {
+            throw new RuntimeException("Gmail service not initialized. Please authorize Gmail first.");
+        }
+        
         try {
             ListMessagesResponse response = gmailService.users().messages()
                     .list("me")
